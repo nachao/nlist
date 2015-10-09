@@ -2,4 +2,4 @@
 列表插件
 
 
-私用，最新 jquery.listing.1.0.js
+私用，主要更新文件 jquery.listing.1.0.js ，其他文件不建议使用。
