@@ -1,0 +1,324 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+	</head>
+	<body>
+		
+		<button id="prev">上一页</button>
+		<span id="current"></span>/
+		<span id="total"></span>
+		<button id="next">下一页</button>
+		<table id="listingTable" cellpadding="0" cellspacing="0" style="width: 900px;" ></table>
+
+		<table>
+			<tr>
+				<td roslpan="2"></td>
+			</tr>
+		</table>
+
+		
+		<script type="text/template" id="listingTemplateTh">
+			<tr>
+				<th><span>Name</span></th>
+				<th>Chinese</th>
+				<th>Maths</th>
+				<th>Sum</th>
+				<th>Grade</th>
+				<th>Team</th>
+				<th>Operate</th>
+			</tr>
+		</script>
+
+		<script type="text/template" id="listingTemplateTd">
+			<tr>
+				<td>
+					<label><input type="checkbox" class="choose" />{{name}}</label>
+				</td>
+				<td>
+					<input type="number" value="{{chinese}}" class="chinese" />
+				</td>
+				<td>
+					<input type="number" value="{{maths}}" class="maths" />
+				</td>
+				<td>
+					<span class="sum"></span>
+				</td>
+				<td>
+					<select class="grade">
+						<option value="0" >S</option></span>
+						<option value="1" >A</option></span>
+						<option value="2" >B</option></span>
+						<option value="3" >C</option></span>
+					</select>
+				</td>
+				<td>
+					<select class="team">
+						<option value="0" >第一小组</option></span>
+						<option value="1" >第五小组</option></span>
+					</select>
+				</td>
+				<td>
+					<a class="del" href="javascript:;" >删除</a>&nbsp;<a class="revise" href="javascript:;" >修改</a>
+				</td>
+			</tr>
+		</script>
+
+		<script src="./jquery-1.11.0.min.js" ></script>
+		<script src="./jquery.listing.1.0.js" ></script>
+		<!-- <script src="./jquery.listing.2.0.js" ></script> -->
+		<!-- <script src="./jquery.listing.1.0.min.js" ></script> -->
+		<script>
+
+
+			function getDate(callback) {
+
+				var data = [],
+					name = '',
+					arr = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz';
+
+				for ( var i = 0; i < 15; i++ ) {
+
+					name = '';
+					for ( var j = 0; j < 10; j++ ) {
+						name = name.concat(arr.charAt(parseInt(Math.random() * arr.length)));
+					}
+
+					data.push({
+						id: i,
+						name: name,
+						chinese: parseInt(Math.random() * 100),
+						maths: parseInt(Math.random() * 100),
+						grade: parseInt(Math.random() * 3),
+						team: parseInt(Math.random() * 2),
+						checked: false
+					});
+				}
+
+				callback ? callback(data) : null;
+				return data;
+			}
+
+/*
+			var list2 = new Listing({
+					msg: '初始化',
+					table: $('#listingTable'),
+					th: $('#listingTemplateTh'),
+					td: $('#listingTemplateTd'),
+					page: {
+						prev: $('#prev'),
+						next: $('#next'),
+						current: $('#current'),
+						total: $('#total'),
+						number: 5,
+					},
+					data: {
+
+					},
+					mothds: {
+						'.choose': function () {
+
+						},
+						'.chinese': function () {
+
+						}
+					}
+				});
+*/
+
+			var list = new Listing({
+					msg: '初始化',
+					table: $('#listingTable'),
+					style: {
+						// td: { textAlign:'center' }
+					},
+					prevBtn: $('#prev'),
+					nextBtn: $('#next'),
+					pageNow: $('#b'),
+					pageTotal: $('#c'),
+					pages: 5,
+					th: [
+							{
+								val: '<span>Name</span>',
+								span: function ( el, that ) {
+									el.click(function(){
+										that.set({
+
+										});
+									});
+								}
+							},
+							{
+								val: 'Chinese',
+								init: function ( el, that ) {
+									el.click(function(){
+										if ( $(this).hasClass('ASC') ) {
+											$(this).removeClass('ASC');
+											$(this).html('Chinese ∧');
+										} else {
+											$(this).addClass('ASC');
+											$(this).html('Chinese ∨');
+										}
+										that.sort('chinese', $(this).hasClass('ASC'));
+									});
+								}
+							}, 
+							{
+								val: 'Maths',
+								init: function ( el, that ) {
+									el.click(function(){
+										if ( $(this).hasClass('ASC') ) {
+											$(this).removeClass('ASC');
+											$(this).html('Maths ∧');
+										} else {
+											$(this).addClass('ASC');
+											$(this).html('Maths ∨');
+										}
+										that.sort('maths', $(this).hasClass('ASC'));
+									});
+								}
+							}, 'Sum', 'Grade', 'Team', 'Operate'],
+					td: [
+							{	
+								val: '<label><input type="checkbox" />{{name}}</label>',
+								css: { color: 'red' },
+								input: function( el, data ){
+
+									// 初始化
+									if ( data.checked ) {
+										el.prop('checked', true);
+									}
+
+									// 挂接事件
+									el.click(function(){
+										data.set({
+											checked: $(this).is(':checked')
+										});
+									});
+								},
+								roslpan: 2
+							},
+							{	
+								val: '<input type="number" value="{{chinese}}" />',
+								input: function ( el, data ) {
+									el.change(function(){
+										$(this).val(parseInt($(this).val()) || 0);
+										data.set({
+											chinese: parseInt($(this).val())
+										});
+										el.parents('tr').find('.sum').html(data.chinese + data.maths);
+									})
+								}
+							},
+							{	
+								val: '<input type="number" value="{{maths}}" />',
+								input: function ( el, data ) {
+									el.change(function(){
+										$(this).val(parseInt($(this).val()) || 0);
+										data.set({
+											maths: parseInt($(this).val())
+										});
+										el.parents('tr').find('.sum').html(data.chinese + data.maths);
+									})
+								}
+							},
+							{
+								val: '<span class="sum"></span>',
+								span: function ( el, data ) {
+									el.html(data.chinese + data.maths);
+								}
+							},
+							{
+								val: '<select class="grade">'
+									+ '<option value="0" >S</option></span>'
+									+ '<option value="1" >A</option></span>'
+									+ '<option value="2" >B</option></span>'
+									+ '<option value="3" >C</option></span>'
+									+ '</select>',
+								select: function ( el, data ) {
+									el.find('option').eq(data.grade).prop('selected', true);
+									el.change(function(){
+										console.log($(this).val());
+										data.set({
+											grade: parseInt($(this).val())
+										});
+									});
+								}
+							},
+							{
+								val: '<select class="team">'
+									+ '<option value="0" >第一小组</option></span>'
+									+ '<option value="1" >第五小组</option></span>'
+									+ '</select>',
+								select: function ( el, data ) {
+									el.find('option').eq(data.team).prop('selected', true);
+									el.change(function(){
+										console.log($(this).val());
+										data.set({
+											team: parseInt($(this).val())
+										});
+									});
+								}
+							},
+							{
+								val: '<a class="del" href="javascript:;" >删除</a>&nbsp;<a class="revise" href="javascript:;" >修改</a>',
+								'.del': function( el ){
+									el.click(function(){
+										var is = $(this).html() == '删除';
+										$(this).html( is ? '恢复' : '删除' ).parents('tr').find('td').css({ color: is ? '#ccc' : '' });
+									});
+								},
+								'.revise': function( el ){
+									el.click(function(){
+										alert('暂不支持！');
+									});
+								}
+							}
+						]
+				});
+
+
+			// 初始化
+			// list.set(, true);
+
+			// 显示加载
+			// list.loading();
+
+			// 获取数据
+			setTimeout(function(){
+				getDate(function(data){
+
+					// 判断是否有数据
+					if ( data.length ) {
+
+						// 导入数据
+						// list.set({
+						// 	record: data
+						// }, true);
+
+						list.view(data);
+
+						// list.set({ defaultStyle: {
+						// 	hover: { backgroundColor: '#ddd' },
+						// 	odd: function(i){
+						// 		return i % 2 != 0;
+						// 	}
+						// }}, true);
+
+					} else {
+
+						// 提示无数据
+						// list.nothing();
+					}
+
+				});
+			}, 100);
+
+
+
+			
+
+
+
+		</script>
+	</body>
+</html>
